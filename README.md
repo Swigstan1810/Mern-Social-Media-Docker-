@@ -42,26 +42,26 @@ Follow these steps to set up and run the application.
 
    
 5. Docker Commands
-   Here are additional Docker commands for common tasks:
+      Here are additional Docker commands for common tasks:
 
-  - Start Containers in Detached Mode:
-   ````bash
-      docker-compose up -d
-   
--   Stop Containers:
-   ````bash
-      docker-compose down
+   - Start Containers in Detached Mode:
+      ````bash
+         docker-compose up -d
+      
+   - Stop Containers:
+      ````bash
+         docker-compose down
 
--  View Container Logs:
-   ````bash
-      docker-compose logs -f
-   
--  Rebuild Containers:
-   ````bash
-      docker-compose up --build
+   - View Container Logs:
+      ````bash
+         docker-compose logs -f
+      
+   - Rebuild Containers:
+      ````bash
+         docker-compose up --build`
 
 
-6. Troubleshooting
-  - Port Conflicts: Ensure no other application is using ports 3000, 5000, 8080, or 8081.
-  - Docker Not Starting: Try docker-compose down to remove all containers and then docker-compose up --build to restart.
-  - MongoDB Connection Issues: Check that MONGO_URI is correctly set to mongodb://mongo:27017/social-media in your backend .env file.
+ 6. Troubleshooting
+   - Port Conflicts: Ensure no other application is using ports 3000, 5000, 8080, or 8081.
+   - Docker Not Starting: Try docker-compose down to remove all containers and then docker-compose up --build to restart.
+   - MongoDB Connection Issues: Check that MONGO_URI is correctly set to mongodb://mongo:27017/social-media in your backend .env file.
