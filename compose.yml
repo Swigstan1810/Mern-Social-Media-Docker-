@@ -1,0 +1,83 @@
+version: '3.9'  # Define the Docker Compose version
+
+services:
+  frontend:
+    build:
+      context: ./client  # Directory where the frontend (React) Dockerfile is located
+      dockerfile: Dockerfile  # Dockerfile used to build the frontend service
+    container_name: mern_frontend  # Name of the container for frontend service
+    ports:
+      - "5000:5000"  # Map port 5000 of the host to port 5000 in the container
+    networks:
+      - mern-network  # Connect this service to the 'mern-network' network
+
+  backend:
+    build:
+      context: .  # Directory where the backend (Node.js/Express) Dockerfile is located
+      dockerfile: Dockerfile  # Dockerfile used to build the backend service
+    container_name: mern_backend  # Name of the container for backend service
+    environment:
+      MONGODB_URL: mongodb://mern_mongo:27017/mernapp  # MongoDB connection string
+      CLOUDINARY_URL: https://cloudinary-marketing-res.cloudinary.com/image/upload/w_1000/q_auto/f_auto/landmannalaugar_iceland.jpg  # Example Cloudinary URL
+      NODE_ENV: production  # Set the environment to production
+      ACCESS_TOKEN_SECRET: 17746946c1369b46943ad3baabe799a8450a760a51ab1348c4f02d3c5067b47f  # JWT secret for access tokens
+      REFRESH_TOKEN_SECRET: 1f584563422ddf8c020150aebd24184705c98af198983e69499ce7bb95761e87  # JWT secret for refresh tokens
+    depends_on:
+      - mongo  # Ensure MongoDB starts before this service
+    ports:
+      - "8080:8080"  # Map port 8080 of the host to port 8080 in the container
+    networks:
+      - mern-network  # Connect this service to the 'mern-network' network
+
+  mongo:
+    image: mongo:latest  # Use the latest MongoDB image
+    container_name: mern_mongo  # Name of the container for MongoDB
+    ports:
+      - "27017:27017"  # Map port 27017 of the host to port 27017 in the container
+    volumes:
+      - mongo-data:/data/db  # Persist MongoDB data in a named volume
+    networks:
+      - mern-network  # Connect this service to the 'mern-network' network
+
+  mongo-express:
+    image: mongo-express:latest  # Use the latest Mongo Express image
+    container_name: mern_mongo_express  # Name of the container for Mongo Express (GUI for MongoDB)
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mern_mongo:27017/mernapp  # MongoDB connection string for Mongo Express
+    depends_on:
+      - mongo  # Ensure MongoDB starts before this service
+    ports:
+      - "8081:8081"  # Map port 8081 of the host to port 8081 in the container
+    networks:
+      - mern-network  # Connect this service to the 'mern-network' network
+
+  nginx:
+    image: nginx:latest  # Use the latest NGINX image
+    container_name: mern_nginx  # Name of the container for NGINX
+    ports:
+      - "8082:80"  # Map port 8082 of the host to port 80 in the container (HTTP)
+      - "8443:443"  # Map port 8443 of the host to port 443 in the container (HTTPS)
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Mount the custom NGINX config file
+      - ./ssl/localhost.crt:/etc/ssl/certs/localhost.crt  # SSL certificate for HTTPS
+      - ./ssl/localhost.key:/etc/ssl/private/localhost.key  # SSL key for HTTPS
+    depends_on:
+      - frontend  # Ensure frontend starts before this service
+      - backend  # Ensure backend starts before this service
+    networks:
+      - mern-network  # Connect this service to the 'mern-network' network
+
+  webgoat:
+    image: webgoat/webgoat  # WebGoat image for security testing
+    container_name: webgoat  # Name of the container for WebGoat
+    ports:
+      - "3000:8080"  # Map port 3000 of the host to port 8080 in the container
+      - "3001:9090"  # Map port 3001 of the host to port 9090 in the container
+    networks:
+      - mern-network  # Connect this service to the 'mern-network' network
+
+networks:
+  mern-network:  # Define the 'mern-network' network for all services to communicate
+
+volumes:
+  mongo-data:  # Define a named volume to persist MongoDB data
